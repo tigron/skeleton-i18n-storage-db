@@ -6,7 +6,7 @@
 		"tigron/skeleton-migrate": "*",
 		"tigron/skeleton-object": "*",
 		"tigron/skeleton-database": "*",
-		"tigron/skeleton-i18n": ">=4",
+		"tigron/skeleton-i18n": ">=4"
     },
     "license": "MIT",
     "authors": [
