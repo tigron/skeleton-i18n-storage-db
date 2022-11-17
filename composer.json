@@ -1,0 +1,25 @@
+{
+    "name": "tigron/skeleton-i18n-storage-db",
+    "description": "Database storage for skeleton-i18n",
+    "type": "library",
+    "require": {
+		"tigron/skeleton-migrate": "*",
+		"tigron/skeleton-object": "*",
+		"tigron/skeleton-database": "*",
+		"tigron/skeleton-i18n": ">=4",
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tigron BVBA",
+            "email": "support@tigron.be"
+        }
+    ],
+    "support": {
+        "source": "https://github.com/tigron/skeleton-i18n-storage-db",
+        "issues": "https://github.com/tigron/skeleton-i18n-storage-db/issues"
+    },
+    "autoload": {
+        "psr-4": { "Skeleton\\I18n\\": "lib/Skeleton/I18n/" }
+    }
+}
