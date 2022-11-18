@@ -4,11 +4,11 @@
  *
  * @author Lionel Laffineur <lionel@tigron.be>
  */
-namespace Skeleton\I18n;
+namespace Skeleton\I18n\Storage\Db;
 
 use \Skeleton\Database\Database;
 
-class Migration_20221109_150638_init_database extends \Skeleton\Database\Migration {
+class Migration_20221109_150638_Init_Database extends \Skeleton\Database\Migration {
 
 	/**
 	 * Migrate up
