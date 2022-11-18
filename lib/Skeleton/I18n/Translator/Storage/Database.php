@@ -9,14 +9,6 @@ namespace Skeleton\I18n\Translator\Storage;
 class Database extends \Skeleton\I18n\Translator\Storage {
 
 	/**
-	 * strings
-	 *
-	 * @access private
-	 * @var array $strings
-	 */
-	private $strings = null;
-
-	/**
 	 * Add a translation
 	 *
 	 * @access public
@@ -24,36 +16,111 @@ class Database extends \Skeleton\I18n\Translator\Storage {
 	 * @param string $translated_string
 	 */
 	public function add_translation($string, $translated) {
-		if (!isset($this->language)) {
-			throw new \Exception('Cannot add translation: Language not set');
+		parent::add_translation($string, $translated);
+
+		try {
+			$translation_source = \Skeleton\I18n\Translator\Storage\Database\Translation\Source::get_by_name_string($this->name, $string);
+		} catch (\Exception $e) {
+			$translation_source = new \Skeleton\I18n\Translator\Storage\Database\Translation\Source();
+			$translation_source->name = $this->name;
+			$translation_source->string = $string;
+			$translation_source->save();
+		}
+
+		try {
+			$translation_target = \Skeleton\I18n\Translator\Storage\Database\Translation\Target::get_by_source_language($translation_source, $this->language);
+			$translation_target->translation = $translated;
+			$translation_target->save();
+		} catch (\Exception $e) {
+			$translation_target = new \Skeleton\I18n\Translator\Storage\Database\Translation\Target();
+			$translation_target->translation_source_id = $translation_source->id;
+			$translation_target->language_id = $this->language->id;
+			$translation_target->translation = $translated;
+			$translation_target->save();
 		}
 	}
 
 	/**
-	 * Get a translation
+	 * Delete a translation
 	 *
 	 * @access public
 	 * @param string $string
-	 * @return string $translated_string
 	 */
-	public function get_translation($string) {
-		if (!isset($this->language)) {
-			throw new \Exception('Cannot get translation: Language not set');
-		}
-		// FIXME: not sure, but this shortcut will prevent reloading a new translation for an already loaded string
-		if (isset($this->strings[$string])) {
-			return $this->strings[$string];
-		}
-		// Will throw an error if string not found
-		$translation_source = \Skeleton\I18n\Translator\Storage\Database\Translation\Source::get_by_name_string($this->name, $string);
-		// Will throw an error if translation is not found
-		$translation_target = \Skeleton\I18n\Translator\Storage\Database\Translation\Target::get_by_source_language($translation_source, $this->language);
+	public function delete_translation($string) {
+		parent::delete_translation($string);
 
-		$this->strings[$string] = $translation_target->translation;
-		if (empty($translation_target)) {
-			throw new \Exception('Translation not found for "' . $string . '"');
+		try {
+			$translation_source = \Skeleton\I18n\Translator\Storage\Database\Translation\Source::get_by_name_string($this->name, $string);
+		} catch (\Exception $e) {
+			return;
 		}
 
-		return $this->strings[$string];
+		$translation_targets = \Skeleton\I18n\Translator\Storage\Database\Translation\Target::get_by_source($translation_source);
+		foreach ($translation_targets as $key => $translation_target) {
+			if ($translation_target->language->name_short == $this->language->name_short) {
+				unset($translation_targets[$key]);
+				$translation_target->delete();
+			}
+		}
+
+		if (count($translation_targets) == 0) {
+			$translation_source->delete();
+		}
+	}
+
+	/**
+	 * Load translations from storage
+	 *
+	 * @access public
+	 * @return array $translation
+	 */
+	public function load_translations(): ?array {
+		$sources = \Skeleton\I18n\Translator\Storage\Database\Translation\Source::get_by_name($this->name);
+		$translations= [];
+		foreach ($sources as $source) {
+			try {
+				$translation_target = \Skeleton\I18n\Translator\Storage\Database\Translation\Target::get_by_source_language($source, $this->language);
+				$translations[$source->string] = $translation_target->translation;
+			} catch (\Exception $e) {
+				continue;
+			}
+		}
+		return $translations;
+	}
+
+	/**
+	 * Empty the storage for the given language
+	 *
+	 * @access public
+	 */
+	public function empty(): void {
+		$sources = \Skeleton\I18n\Translator\Storage\Database\Translation\Source::get_by_name($this->name);
+		foreach ($sources as $source) {
+			try {
+				$translation_target = \Skeleton\I18n\Translator\Storage\Database\Translation\Target::get_by_source_language($source, $this->language);
+			} catch (\Exception $e) {
+				continue;
+			}
+			$translation_target->delete();
+		}
+	}
+
+	/**
+	 * Save the translation to storage
+	 *
+	 * @access public
+	 */
+	public function save_translations(): void {
+		// Nothing to do. Every action is live
+	}
+
+	/**
+	 * Get last modified
+	 *
+	 * @access public
+	 * @return \Datetime $last_modified
+	 */
+	public function get_last_modified(): ?\Datetime {
+		return \Skeleton\I18n\Translator\Storage\Database\Translation\Target::get_last_modified($this->name);
 	}
 }

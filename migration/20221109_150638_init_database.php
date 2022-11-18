@@ -22,7 +22,7 @@ class Migration_20221109_150638_init_database extends \Skeleton\Database\Migrati
 			CREATE TABLE `translation_source` (
 			  `id` int(11) NOT NULL AUTO_INCREMENT,
 			  `name` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
-			  `string` mediumtext COLLATE utf8_unicode_ci NOT NULL,
+			  `string` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
 			  `created` datetime NOT NULL,
 			  `updated` datetime DEFAULT NULL,
 			  PRIMARY KEY (`id`),

@@ -41,14 +41,37 @@ class Source {
 	 * @access public
 	 * @param $name
 	 * @param $string
-	 * @return String
+	 * @return Source[] $sources
 	 */
 	public static function get_by_name_string($name, $string) {
 		$db = Database::get();
-		$id = $db->get_one("SELECT id FROM translation_source WHERE name = ? AND string = ?", [ $name, $string ]);
-		if ($id == null) {
+		$row = $db->get_row("SELECT * FROM translation_source WHERE name = ? AND string = ?", [ $name, $string ]);
+		if ($row == null) {
 			throw new \Exception("Source not found");
 		}
-		return self::get_by_id($id);
+		$source = new self();
+		$source->id = $row['id'];
+		$source->details = $row;
+		return $source;
+	}
+
+	/**
+	 * get by name
+	 *
+	 * @access public
+	 * @param $name
+	 * @return Source[] $sources
+	 */
+	public static function get_by_name($name) {
+		$db = Database::get();
+		$data = $db->get_all("SELECT * FROM translation_source WHERE name = ?", [ $name ]);
+		$result = [];
+		foreach ($data as $row) {
+			$source = new self();
+			$source->id = $row['id'];
+			$source->details = $row;
+			$result[] = $source;
+		}
+		return $result;
 	}
 }
