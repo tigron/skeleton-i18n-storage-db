@@ -62,16 +62,33 @@ class Target {
 		return $target;
 	}
 
+	/**
+	 * get last modified
+	 *
+	 * @access public
+	 * @param string $translator_name
+	 * @return DateTime
+	 */
 	public static function get_last_modified($translator_name) {
 		$db = Database::get();
-		$updated = $db->get_one('
-			SELECT ifnull(translation_target.updated, translation_target.created) as last_modified
-			FROM translation_source, translation_target
-			WHERE translation_target.translation_source_id=translation_source.id and name= ?
-			ORDER BY last_modified DESC LIMIT 1', [ $translator_name ]);
+
+		if (file_exists(\Skeleton\I18n\Translator\Storage\Config::$tmp_path) === false) {
+			mkdir(\Skeleton\I18n\Translator\Storage\Config::$tmp_path, 0755, true);
+		}
+
+		if (file_exists(\Skeleton\I18n\Translator\Storage\Config::$tmp_path . '/' . $translator_name) && filemtime(\Skeleton\I18n\Translator\Storage\Config::$tmp_path . '/' . $translator_name) + 60 > time()) {
+			return new \DateTime(file_get_contents(\Skeleton\I18n\Translator\Storage\Config::$tmp_path . '/' . $translator_name));
+		}
+
+		$updated = $db->get_one('	SELECT ifnull(translation_target.updated, translation_target.created) as last_modified
+									FROM translation_source, translation_target
+									WHERE translation_target.translation_source_id=translation_source.id and name= ?
+									ORDER BY last_modified DESC LIMIT 1', [ $translator_name ]);
 		if ($updated === null) {
 			return null;
 		}
+
+		file_put_contents(\Skeleton\I18n\Translator\Storage\Config::$tmp_path . '/' . $translator_name, $updated);
 		return new \DateTime($updated);
 	}
 }
