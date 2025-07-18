@@ -15,7 +15,7 @@ class Database extends \Skeleton\I18n\Translator\Storage {
 	 * @param string $string
 	 * @param string $translated_string
 	 */
-	public function add_translation($string, $translated) {
+	public function add_translation($string, $translated, bool $fuzzy = false): void {
 		parent::add_translation($string, $translated);
 
 		try {
