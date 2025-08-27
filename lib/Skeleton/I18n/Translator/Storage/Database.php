@@ -80,7 +80,9 @@ class Database extends \Skeleton\I18n\Translator\Storage {
 		foreach ($sources as $source) {
 			try {
 				$translation_target = \Skeleton\I18n\Translator\Storage\Database\Translation\Target::get_by_source_language($source, $this->language);
-				$translations[$source->string] = $translation_target->translation;
+				$translation_entry = new \Skeleton\I18n\Translation\Entry($source->string);
+				$translation_entry->set($translation_target->translation);
+				$translations[$source->string] = $translation_entry;
 			} catch (\Exception $e) {
 				continue;
 			}
