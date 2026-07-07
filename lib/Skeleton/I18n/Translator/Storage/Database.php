@@ -30,12 +30,14 @@ class Database extends \Skeleton\I18n\Translator\Storage {
 		try {
 			$translation_target = \Skeleton\I18n\Translator\Storage\Database\Translation\Target::get_by_source_language($translation_source, $this->language);
 			$translation_target->translation = $translated;
+			$translation_target->fuzzy = $fuzzy;
 			$translation_target->save();
 		} catch (\Exception $e) {
 			$translation_target = new \Skeleton\I18n\Translator\Storage\Database\Translation\Target();
 			$translation_target->translation_source_id = $translation_source->id;
 			$translation_target->language_id = $this->language->id;
 			$translation_target->translation = $translated;
+			$translation_target->fuzzy = $fuzzy;
 			$translation_target->save();
 		}
 	}
