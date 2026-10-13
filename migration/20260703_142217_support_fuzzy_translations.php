@@ -7,11 +7,11 @@ declare(strict_types=1);
  *
  * @author Lionel Laffineur <lionel@tigron.be>
  */
-
+namespace Skeleton\I18n\Storage\Db;
 
 use \Skeleton\Database\Database;
 
-class Migration_20260703_142217_Support_fuzzy_translations extends \Skeleton\Database\Migration {
+class Migration_20260703_142217_Support_Fuzzy_Translations extends \Skeleton\Database\Migration {
 
 	/**
 	 * Migrate up
